@@ -1193,27 +1193,45 @@
         const frameCount = 234;
         const currentFrame = index => `./ezgif-frame-${index.toString().padStart(3, '0')}.png`;
 
-        const images = [];
+        const images = new Array(frameCount);
         let imagesLoaded = 0, imageWidth = 0, imageHeight = 0;
         const preloaderText = document.getElementById('preloader-text');
         const preloader = document.getElementById('preloader');
+        const initialLoadCount = Math.min(20, frameCount);
 
-        for (let i = 1; i <= frameCount; i++) {
-            const img = new Image(); img.src = currentFrame(i); images.push(img);
+        function loadFrame(i, isInitial) {
+            const img = new Image(); 
+            img.src = currentFrame(i); 
+            images[i - 1] = img;
+            
             img.onload = () => {
                 imagesLoaded++;
-                preloaderText.innerText = Math.floor((imagesLoaded / frameCount) * 100) + '%';
+                if (isInitial && imagesLoaded <= initialLoadCount) {
+                    preloaderText.innerText = Math.floor((imagesLoaded / initialLoadCount) * 100) + '%';
+                }
+                
                 if (imagesLoaded === 1) {
                     imageWidth = img.width; imageHeight = img.height;
                     canvas.width = imageWidth; canvas.height = imageHeight; context.drawImage(img, 0, 0);
                 }
-                if (imagesLoaded === frameCount) {
+                
+                if (imagesLoaded === initialLoadCount) {
                     setTimeout(() => {
                         preloader.style.transform = 'translateY(-100%)';
                         setTimeout(() => window.dispatchEvent(new Event('scroll')), 500);
+                        
+                        // Lazy load the remaining frames in the background
+                        for (let j = initialLoadCount + 1; j <= frameCount; j++) {
+                            loadFrame(j, false);
+                        }
                     }, 500);
                 }
             };
+        }
+
+        // Prioritize loading only the first 20 frames to unblock the UI instantly
+        for (let i = 1; i <= initialLoadCount; i++) {
+            loadFrame(i, true);
         }
 
         let targetFrame = 0; let currentRenderedFrame = 0;
