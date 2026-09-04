@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avant-Garde Portfolio 2.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #ccff00;
+            /* Neon Acid Green */
+            --bg: #050505;
+            --text: #ffffff;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            font-family: 'Outfit', sans-serif;
+            color: var(--text);
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Preloader */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #050505;
+            z-index: 999999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 1.2s cubic-bezier(0.8, 0, 0.2, 1);
+        }
+
+        #preloader-text {
+            font-size: clamp(4rem, 15vw, 15rem);
+            font-weight: 900;
+            color: transparent;
+            -webkit-text-stroke: 2px var(--accent);
+            letter-spacing: -2px;
+        }
+
+        /* Noise Overlay */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.05;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        }
+
+        /* Advanced Custom Cursor */
+        .cursor-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.2s;
+        }
+
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--accent);
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), height 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s, border-color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cursor-text {
+            font-size: 14px;
+            font-weight: 900;
+            color: #000;
+            opacity: 0;
+            transition: opacity 0.2s;
+            text-transform: uppercase;
+        }
+
+        body.hovering .cursor-outline {
+            width: 60px;
+            height: 60px;
+            background: rgba(204, 255, 0, 0.1);
+        }
+
+        body.hover-view .cursor-outline {
+            width: 90px;
+            height: 90px;
+            background: var(--accent);
+            border-color: transparent;
+        }
+
+        body.hover-view .cursor-dot {
+            opacity: 0;
+        }
+
+        body.hover-view .cursor-text {
+            opacity: 1;
+        }
+
+        /* Fixed Background Canvas */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: 0;
+            opacity: 0.6;
+            filter: grayscale(0.2) contrast(1.1);
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, transparent 40%, #000 120%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Layout Container */
+        .content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Typography */
+        h1,
+        h2,
+        h3 {
+            margin: 0;
+            line-height: 1;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+            perspective: 1000px;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: clamp(4rem, 12vw, 14rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.05em;
+            mix-blend-mode: difference;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+        }
+
+        .hero-title .outline {
+            -webkit-text-stroke: 2px #fff;
+            color: transparent;
+            display: block;
+            transform: translateX(-5%);
+            will-change: transform;
+        }
+
+        .hero-title .filled {
+            color: #fff;
+            display: block;
+            transform: translateX(5%);
+            will-change: transform;
+        }
+
+        .hero-subtitle {
+            margin-top: 1rem;
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            font-weight: 400;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            color: var(--accent);
+            mix-blend-mode: difference;
+        }
+
+        .hero-badge {
+            position: absolute;
+            bottom: 5%;
+            right: 5%;
+            width: clamp(100px, 15vw, 180px);
+            height: clamp(100px, 15vw, 180px);
+            animation: spin 15s linear infinite;
+            z-index: 3;
+            pointer-events: none;
+            mix-blend-mode: difference;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Scroll-Tied Marquee */
+        .marquee-wrapper {
+            padding: 3rem 0;
+            background: var(--accent);
+            color: #000;
+            transform: rotate(-3deg) scale(1.05);
+            margin: 10vh 0;
+            box-shadow: 0 20px 50px rgba(204, 255, 0, 0.2);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .marquee-inner {
+            display: flex;
+            white-space: nowrap;
+            width: fit-content;
+            will-change: transform;
+        }
+
+        .marquee-text {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            padding-right: 2rem;
+        }
+
+        .marquee-text span {
+            -webkit-text-stroke: 2px #000;
+            color: transparent;
+        }
+
+        /* Bento Box Layout */
+        .bento-section {
+            padding: 10vh 5vw;
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            font-size: clamp(3rem, 6vw, 6rem);
+            font-weight: 900;
+            margin-bottom: 4rem;
+            text-transform: uppercase;
+            mix-blend-mode: difference;
+            letter-spacing: -2px;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-auto-rows: 250px;
+            gap: 24px;
+        }
+
+        .bento-card {
+            background: rgba(10, 10, 10, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 30px;
+            padding: 3rem;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.4s;
+            will-change: transform;
+        }
+
+        .bento-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(204, 255, 0, 0.15), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bento-card:hover::before {
+            opacity: 1;
+        }
+
+        .bento-card:hover {
+            border-color: rgba(204, 255, 0, 0.4);
+        }
+
+        .bento-content {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-about {
+            grid-column: span 8;
+            grid-row: span 2;
+        }
+
+        .card-skills {
+            grid-column: span 4;
+            grid-row: span 2;
+            background: rgba(204, 255, 0, 0.03);
+        }
+
+        .card-stat {
+            grid-column: span 4;
+            grid-row: span 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .bento-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .bento-text {
+            font-size: clamp(1.2rem, 2vw, 1.8rem);
+            line-height: 1.6;
+            color: #ddd;
+            font-weight: 200;
+        }
+
+        .huge-stat {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 10px;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: auto;
+        }
+
+        .skill-pill {
+            padding: 10px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            font-size: 1.1rem;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .skill-pill:hover {
+            background: var(--accent);
+            color: #000;
+            border-color: transparent;
+        }
+
+        /* Upgraded Tech Stack Rows */
+        .tech-stack-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tech-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            transition: padding 0.4s ease, background 0.4s ease;
+        }
+
+        .tech-row::before {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background: var(--accent);
+            transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .tech-row:hover::before {
+            width: 100%;
+        }
+
+        .tech-row:hover {
+            padding: 5rem 2rem;
+            background: linear-gradient(90deg, rgba(204, 255, 0, 0.03), transparent);
+        }
+
+        .tech-row-title {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            width: 30%;
+            color: #fff;
+            transition: color 0.3s;
+            z-index: 1;
+        }
+
+        .tech-row:hover .tech-row-title {
+            color: var(--accent);
+        }
+
+        .tech-row-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            width: 70%;
+            justify-content: flex-end;
+            z-index: 1;
+        }
+
+        .tech-pill {
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            font-size: 1.1rem;
+            color: #ccc;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .tech-pill:hover {
+            background: var(--accent);
+            color: #000;
+            border-color: transparent;
+            transform: scale(1.1);
+        }
+
+        /* Creative Works Section */
+        .creative-work-list {
+            display: flex;
+            flex-direction: column;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .c-work-item {
+            display: grid;
+            grid-template-columns: 100px 1fr 80px;
+            align-items: center;
+            padding: 4rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-decoration: none;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            transition: padding 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .c-work-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--accent);
+            transform: scaleY(0);
+            transform-origin: bottom;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 0;
+        }
+
+        .c-work-item:hover {
+            padding: 4rem 2rem;
+        }
+
+        .c-work-item:hover::before {
+            transform: scaleY(1);
+            transform-origin: top;
+        }
+
+        .c-work-index {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: #666;
+            transition: color 0.4s;
+            z-index: 1;
+        }
+
+        .c-work-item:hover .c-work-index {
+            color: #000;
+        }
+
+        .c-work-main {
+            display: flex;
+            flex-direction: column;
+            z-index: 1;
+        }
+
+        .c-work-title {
+            font-size: clamp(3rem, 7vw, 6rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            line-height: 1;
+            margin-bottom: 10px;
+            position: relative;
+            color: #fff;
+            transition: color 0.4s, transform 0.4s;
+        }
+
+        /* Kinetic Hover Text Replacement */
+        .c-work-title::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 100%;
+            color: #000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .c-work-item:hover .c-work-title {
+            color: transparent;
+            transform: translateY(-10px);
+        }
+
+        .c-work-item:hover .c-work-title::after {
+            opacity: 1;
+            transform: translateY(-100%);
+        }
+
+        .c-work-role {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: color 0.4s, transform 0.4s;
+        }
+
+        .c-work-item:hover .c-work-role {
+            color: #333;
+            transform: translateX(10px);
+        }
+
+        .c-work-arrow {
+            font-size: 3rem;
+            font-weight: 200;
+            display: flex;
+            justify-content: flex-end;
+            z-index: 1;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .c-work-item:hover .c-work-arrow {
+            color: #000;
+            transform: rotate(45deg) scale(1.2);
+        }
+
+        /* Upgraded Agency Footer UI */
+        .site-footer {
+            background: #050505;
+            position: relative;
+            z-index: 10;
+            padding: 10vh 5vw 3vh 5vw;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .footer-bg-glow {
+            position: absolute;
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80vw;
+            height: 500px;
+            background: radial-gradient(circle, rgba(204, 255, 0, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        .footer-left {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .footer-headline {
+            font-size: clamp(3rem, 6vw, 6rem);
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 1rem;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+        }
+
+        .footer-sub {
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            color: #888;
+            font-weight: 300;
+            margin-bottom: 4rem;
+        }
+
+        .magnetic-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: clamp(120px, 15vw, 150px);
+            height: clamp(120px, 15vw, 150px);
+            background: rgba(255, 255, 255, 0.03);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 50%;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .magnetic-btn::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--accent);
+            border-radius: 100px;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 0;
+        }
+
+        .magnetic-btn:hover::before {
+            transform: translateY(-100%);
+            border-radius: 0;
+        }
+
+        .magnetic-btn span {
+            position: relative;
+            z-index: 1;
+            transition: color 0.3s;
+        }
+
+        .magnetic-btn:hover span {
+            color: #000;
+        }
+
+        .footer-actions {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            margin-left: -20px;
+        }
+
+        .resume-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 18px 40px;
+            background: transparent;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+        }
+
+        .resume-btn::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            border-radius: 50px;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 0;
+        }
+
+        .resume-btn:hover::before {
+            transform: translateY(-100%);
+            border-radius: 0;
+        }
+
+        .resume-btn span {
+            position: relative;
+            z-index: 1;
+            transition: color 0.3s;
+        }
+
+        .resume-btn:hover span {
+            color: #000;
+        }
+
+        .footer-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .social-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+        }
+
+        .social-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            transition: padding 0.4s, color 0.3s;
+        }
+
+        .social-link:hover {
+            padding: 1.5rem 1rem;
+            color: var(--accent);
+            background: linear-gradient(90deg, rgba(204, 255, 0, 0.03), transparent);
+        }
+
+        .social-arrow {
+            font-weight: 300;
+            transition: transform 0.3s;
+        }
+
+        .social-link:hover .social-arrow {
+            transform: translate(5px, -5px);
+        }
+
+        .footer-bottom-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1500px;
+            margin-left: auto;
+            margin-right: auto;
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .footer-bottom-bar {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+                margin-top: 4rem;
+            }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(60px);
+            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 900px) {
+
+            .card-about,
+            .card-skills,
+            .card-stat {
+                grid-column: span 12;
+            }
+
+            .c-work-item {
+                grid-template-columns: 50px 1fr 40px;
+                padding: 2rem 0;
+            }
+
+            .c-work-item:hover {
+                padding: 2rem 1rem;
+            }
+
+            .c-work-title {
+                font-size: clamp(2rem, 6vw, 3rem);
+            }
+
+            .c-work-arrow {
+                font-size: 2rem;
+            }
+
+            .tech-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+                padding: 3rem 0;
+            }
+
+            .tech-row:hover {
+                padding: 3rem 1rem;
+            }
+
+            .tech-row-title,
+            .tech-row-skills {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .cursor-dot,
+            .cursor-outline {
+                display: none;
+            }
+
+            body {
+                cursor: auto;
+            }
+
+            .hero-badge {
+                display: none;
+            }
+
+            .magnetic-btn {
+                margin-top: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="preloader">
+        <div id="preloader-text">0%</div>
+    </div>
+    <div class="noise"></div>
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"><span class="cursor-text">VIEW</span></div>
+
+    <canvas id="animationCanvas"></canvas>
+    <div class="vignette"></div>
+
+    <div class="content">
+        <!-- Hero -->
+        <section class="hero">
+            <div class="hero-title">
+                <span class="outline">SOFTWARE</span>
+                <span class="filled">DEVELOPER</span>
+            </div>
+            <div class="hero-subtitle reveal">Engineering Digital Excellence</div>
+
+            <div class="hero-badge">
+                <svg viewBox="0 0 100 100">
+                    <defs>
+                        <path id="circlePath" d="M 50, 50 m -40, 0 a 40,40 0 1,1 80,0 a 40,40 0 1,1 -80,0" />
+                    </defs>
+                    <text>
+                        <textPath href="#circlePath" font-size="11" font-weight="bold" letter-spacing="3.5">SCROLL TO
+                            EXPLORE • SCROLL TO EXPLORE • </textPath>
+                    </text>
+                </svg>
+            </div>
+        </section>
+
+        <!-- Marquee -->
+        <div class="marquee-wrapper">
+            <div class="marquee-inner" id="marqueeInner"></div>
+        </div>
+
+        <!-- Bento -->
+        <section class="bento-section">
+            <h2 class="section-header reveal">The Architecture</h2>
+            <div class="bento-grid">
+                <div class="bento-card card-about reveal hover-target">
+                    <div class="bento-content">
+                        <div class="bento-title">System Overview</div>
+                        <div class="bento-text"
+                            style="overflow-y: auto; padding-right: 10px; display: flex; flex-direction: column; gap: 15px; font-size: 1.1rem; line-height: 1.5;">
+                            <p style="margin: 0;">Hi, I’m Sayan, an undergraduate software developer currently pursuing
+                                my degree at Brainware University, Kolkata. I am passionate about transforming concepts
+                                into software, with a vision of making programming literacy as widespread as reading and
+                                writing.</p>
+
+                            <p style="margin: 0;">Technology inspires me not just as a tool, but as a force that drives
+                                meaningful change. I’ve worked with:</p>
+                            <ul style="margin: 0; padding-left: 20px;">
+                                <li>Data Structures & Algorithms in C++</li>
+                                <li>Web Development using Three.js, Tailwind CSS, and Bootstrap</li>
+                                <li>A strong appreciation for the Linux ecosystem, especially Arch Linux</li>
+                            </ul>
+
+                            <p style="margin: 0;">I may not know everything yet, but what I lack in skills, I more than
+                                make up for with determination to learn and grow. Beyond the screen and code, you’ll
+                                often find me immersed in the world of movies — another kind of storytelling that fuels
+                                my creativity.</p>
+
+                            <p style="margin: 0; font-weight: 700; color: var(--accent);">Let’s connect and build
+                                something great!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bento-card card-skills reveal hover-target" style="transition-delay: 0.1s;">
+                    <div class="bento-content" style="overflow-y: auto; padding-right: 10px;">
+                        <div class="bento-title" style="margin-bottom: 1.5rem;">Education</div>
+
+                        <div style="margin-bottom: 2rem;">
+                            <div style="color: #fff; font-weight: 700; font-size: 1.2rem; line-height: 1.3;">
+                                Bachelor of Computer Applications (BCA)
+                            </div>
+                            <div
+                                style="color: var(--accent); font-size: 0.9rem; margin-top: 6px; font-weight: 700; letter-spacing: 1px;">
+                                BRAINWARE UNIVERSITY • 2024 - 2028
+                            </div>
+                            <div style="color: #999; font-size: 0.95rem; margin-top: 6px; line-height: 1.5;">
+                                Barasat, Kolkata, West Bengal, India<br>
+                                GPA: <span style="color: #fff; font-weight: 700;">9.3</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style="color: #fff; font-weight: 700; font-size: 1.2rem; line-height: 1.3;">
+                                Higher Secondary (Science)
+                            </div>
+                            <div
+                                style="color: var(--accent); font-size: 0.9rem; margin-top: 6px; font-weight: 700; letter-spacing: 1px;">
+                                GANRAPOTA HIGH SCHOOL • 2022 - 2024
+                            </div>
+                            <div style="color: #999; font-size: 0.95rem; margin-top: 6px; line-height: 1.5;">
+                                Ganrapota, Bongaon, West Bengal, India<br>
+                                Percentage: <span style="color: #fff; font-weight: 700;">77.4%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bento-card card-stat reveal hover-target" style="transition-delay: 0.2s;">
+                    <div class="bento-content">
+                        <div class="huge-stat">2</div>
+                        <div class="stat-label">months of Internship</div>
+                    </div>
+                </div>
+                <div class="bento-card card-stat reveal hover-target" style="transition-delay: 0.3s;">
+                    <div class="bento-content">
+                        <div class="huge-stat">10+</div>
+                        <div class="stat-label">Projects</div>
+                    </div>
+                </div>
+                <div class="bento-card card-stat reveal hover-target" style="transition-delay: 0.4s;">
+                    <div class="bento-content">
+                        <div class="huge-stat">50K</div>
+                        <div class="stat-label">Lines of Code</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Creative Tech Stack -->
+        <section class="bento-section" style="padding-top: 5vh;">
+            <h2 class="section-header reveal">Skills & Tech Stack</h2>
+            <div class="tech-stack-container">
+                <div class="tech-row reveal hover-target">
+                    <div class="tech-row-title">Languages</div>
+                    <div class="tech-row-skills">
+                        <span class="tech-pill hover-target">C++ (C++11/20)</span>
+                        <span class="tech-pill hover-target">JavaScript</span>
+                        <span class="tech-pill hover-target">Python</span>
+                    </div>
+                </div>
+                <div class="tech-row reveal hover-target">
+                    <div class="tech-row-title">Frontend</div>
+                    <div class="tech-row-skills">
+                        <span class="tech-pill hover-target">React</span>
+                        <span class="tech-pill hover-target">Tailwind CSS</span>
+                        <span class="tech-pill hover-target">Three.js</span>
+                    </div>
+                </div>
+                <div class="tech-row reveal hover-target">
+                    <div class="tech-row-title">Backend & DB</div>
+                    <div class="tech-row-skills">
+                        <span class="tech-pill hover-target">Node.js</span>
+                        <span class="tech-pill hover-target">Express</span>
+                        <span class="tech-pill hover-target">MongoDB</span>
+                        <span class="tech-pill hover-target">Supabase</span>
+                    </div>
+                </div>
+                <div class="tech-row reveal hover-target">
+                    <div class="tech-row-title">Environments</div>
+                    <div class="tech-row-skills">
+                        <span class="tech-pill hover-target">Linux (Arch)</span>
+                        <span class="tech-pill hover-target">Docker</span>
+                        <span class="tech-pill hover-target">CMake</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Selected Works -->
+        <section class="bento-section">
+            <h2 class="section-header reveal">Selected Works</h2>
+            <div class="creative-work-list">
+                <a href="https://github.com/Sayan00007/Unrendered" class="c-work-item hover-view reveal">
+                    <div class="c-work-index">01</div>
+                    <div class="c-work-main">
+                        <div class="c-work-title" data-text="Unrendered">Unrendered</div>
+                        <div class="c-work-role">Indie Game Developer</div>
+                    </div>
+                    <div class="c-work-arrow">↗</div>
+                </a>
+                <a href="https://github.com/Sayan00007/BlockCore" class="c-work-item hover-view reveal"
+                    style="transition-delay: 0.1s;">
+                    <div class="c-work-index">02</div>
+                    <div class="c-work-main">
+                        <div class="c-work-title" data-text="BlockCore">BlockCore</div>
+                        <div class="c-work-role">Core Engine Developer</div>
+                    </div>
+                    <div class="c-work-arrow">↗</div>
+                </a>
+                <a href="https://sayan00007.github.io/crauleyco-frontend/" class="c-work-item hover-view reveal"
+                    style="transition-delay: 0.2s;">
+                    <div class="c-work-index">03</div>
+                    <div class="c-work-main">
+                        <div class="c-work-title" data-text="CrauleyCo">CrauleyCo</div>
+                        <div class="c-work-role">Web Designer & Developer</div>
+                    </div>
+                    <div class="c-work-arrow">↗</div>
+                </a>
+            </div>
+        </section>
+    </div>
+    </div>
+
+    <!-- Solid Dedicated Footer (Scrolls up naturally AFTER canvas stops) -->
+    <footer class="site-footer">
+        <div class="footer-bg-glow"></div>
+
+        <div class="footer-grid">
+            <div class="footer-left reveal">
+                <h2 class="footer-headline">Have an idea?</h2>
+                <p class="footer-sub">Let's engineer something extraordinary together.</p>
+                <div class="footer-actions">
+                    <a href="mailto:sayanmitra.professional@gmail.com" class="magnetic-btn hover-target" id="magnetBtn">
+                        <span>Say Hi</span>
+                    </a>
+                    <a href="https://drive.google.com/drive/folders/1GQlvBrWvPaUob-NezZBRojBhSrp9D403?usp=sharing"
+                        download class="resume-btn hover-target">
+                        <span>Get Resume</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-right reveal" style="transition-delay: 0.2s;">
+                <div class="social-list">
+                    <a href="https://github.com/Sayan00007" target="_blank" class="social-link hover-target">
+                        <span class="social-name">GitHub</span>
+                        <span class="social-arrow">↗</span>
+                    </a>
+                    <a href="https://www.linkedin.com/in/sayan-mitra007" target="_blank"
+                        class="social-link hover-target">
+                        <span class="social-name">LinkedIn</span>
+                        <span class="social-arrow">↗</span>
+                    </a>
+                    <a href="https://x.com/Sayanmitra007" target="_blank" class="social-link hover-target">
+                        <span class="social-name">X</span>
+                        <span class="social-arrow">↗</span>
+                    </a>
+                    <a href="https://leetcode.com/Sayan0007/" target="_blank" class="social-link hover-target">
+                        <span class="social-name">LeetCode</span>
+                        <span class="social-arrow">↗</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom-bar reveal" style="transition-delay: 0.4s;">
+            <div class="footer-copyright">© 2026 Creative Engineer</div>
+            <div class="footer-status">
+                <span class="status-dot"></span> All systems operational
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Preloader Logic
+        const canvas = document.getElementById('animationCanvas');
+        const context = canvas.getContext('2d');
+        const frameCount = 234;
+        const currentFrame = index => `./ezgif-frame-${index.toString().padStart(3, '0')}.png`;
+
+        const images = [];
+        let imagesLoaded = 0, imageWidth = 0, imageHeight = 0;
+        const preloaderText = document.getElementById('preloader-text');
+        const preloader = document.getElementById('preloader');
+
+        for (let i = 1; i <= frameCount; i++) {
+            const img = new Image(); img.src = currentFrame(i); images.push(img);
+            img.onload = () => {
+                imagesLoaded++;
+                preloaderText.innerText = Math.floor((imagesLoaded / frameCount) * 100) + '%';
+                if (imagesLoaded === 1) {
+                    imageWidth = img.width; imageHeight = img.height;
+                    canvas.width = imageWidth; canvas.height = imageHeight; context.drawImage(img, 0, 0);
+                }
+                if (imagesLoaded === frameCount) {
+                    setTimeout(() => {
+                        preloader.style.transform = 'translateY(-100%)';
+                        setTimeout(() => window.dispatchEvent(new Event('scroll')), 500);
+                    }, 500);
+                }
+            };
+        }
+
+        let targetFrame = 0; let currentRenderedFrame = 0;
+
+        // Marquee Logic
+        const marqueeInner = document.getElementById('marqueeInner');
+        marqueeInner.innerHTML = `<div class="marquee-text">CREATIVE DEVELOPER /// <span>UI/UX DESIGNER</span> /// WEBGL ENTHUSIAST /// INTERACTIVE EXPERIENCES ///</div>`.repeat(4);
+
+        // Custom Cursor Logic
+        const dot = document.querySelector('.cursor-dot'), outline = document.querySelector('.cursor-outline');
+        let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+        let outlineX = mouseX, outlineY = mouseY;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX; mouseY = e.clientY;
+            dot.style.left = `${mouseX}px`; dot.style.top = `${mouseY}px`;
+        });
+        function animateCursor() {
+            outlineX += (mouseX - outlineX) * 0.15; outlineY += (mouseY - outlineY) * 0.15;
+            outline.style.left = `${outlineX}px`; outline.style.top = `${outlineY}px`;
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        document.querySelectorAll('.hover-target').forEach(t => {
+            t.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+            t.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+        });
+        document.querySelectorAll('.hover-view').forEach(t => {
+            t.addEventListener('mouseenter', () => document.body.classList.add('hover-view'));
+            t.addEventListener('mouseleave', () => document.body.classList.remove('hover-view'));
+        });
+
+        // 3D Bento Hover
+        document.querySelectorAll('.bento-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left, y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`); card.style.setProperty('--mouse-y', `${y}px`);
+                const rotX = ((y - rect.height / 2) / (rect.height / 2)) * -4;
+                const rotY = ((x - rect.width / 2) / (rect.width / 2)) * 4;
+                card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+            card.addEventListener('mouseleave', () => card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`);
+        });
+
+        // Magnetic Button
+        const magnetBtn = document.getElementById('magnetBtn');
+        magnetBtn.addEventListener('mousemove', (e) => {
+            const rect = magnetBtn.getBoundingClientRect();
+            const x = e.clientX - rect.left - (rect.width / 2), y = e.clientY - rect.top - (rect.height / 2);
+            magnetBtn.style.transform = `translate(${x * 0.4}px, ${y * 0.4}px)`;
+        });
+        magnetBtn.addEventListener('mouseleave', () => magnetBtn.style.transform = `translate(0px, 0px)`);
+
+        // Scroll Logic (Canvas & Reveals)
+        const reveals = document.querySelectorAll('.reveal');
+        const outlineText = document.querySelector('.hero-title .outline'), filledText = document.querySelector('.hero-title .filled');
+        let currentScroll = 0, targetScroll = 0;
+
+        window.addEventListener('scroll', () => {
+            targetScroll = window.scrollY;
+            if (marqueeInner) marqueeInner.style.transform = `translateX(-${(targetScroll * 0.15) % 50}%)`;
+
+            // Fixed Canvas Frame Logic
+            const content = document.querySelector('.content');
+            const maxCanvasScroll = Math.max(1, content.offsetHeight - window.innerHeight);
+
+            if (maxCanvasScroll > 0) {
+                const scrollFraction = Math.min(1, Math.max(0, targetScroll / maxCanvasScroll));
+                targetFrame = Math.min(frameCount - 1, Math.floor(scrollFraction * frameCount));
+            }
+
+            reveals.forEach(reveal => {
+                if (reveal.getBoundingClientRect().top < window.innerHeight - 100) reveal.classList.add('active');
+            });
+        });
+
+        function renderLoop() {
+            currentScroll += (targetScroll - currentScroll) * 0.1;
+            if (outlineText && filledText) {
+                outlineText.style.transform = `translateX(${-5 - currentScroll * 0.05}%)`;
+                filledText.style.transform = `translateX(${5 + currentScroll * 0.05}%)`;
+            }
+
+            currentRenderedFrame += (targetFrame - currentRenderedFrame) * 0.1;
+            const frameIndex = Math.round(currentRenderedFrame);
+
+            if (images[frameIndex] && images[frameIndex].complete && imageWidth > 0) {
+                if (canvas.width !== imageWidth) { canvas.width = imageWidth; canvas.height = imageHeight; }
+                context.drawImage(images[frameIndex], 0, 0);
+            }
+            requestAnimationFrame(renderLoop);
+        }
+        requestAnimationFrame(renderLoop);
+    </script>
+</body>
+
+</html>
