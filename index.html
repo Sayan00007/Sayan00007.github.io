@@ -1197,7 +1197,7 @@
         let imagesLoaded = 0, imageWidth = 0, imageHeight = 0;
         const preloaderText = document.getElementById('preloader-text');
         const preloader = document.getElementById('preloader');
-        const initialLoadCount = Math.min(20, frameCount);
+        const initialLoadCount = Math.min(100, frameCount);
 
         function loadFrame(i, isInitial) {
             const img = new Image(); 
@@ -1220,16 +1220,24 @@
                         preloader.style.transform = 'translateY(-100%)';
                         setTimeout(() => window.dispatchEvent(new Event('scroll')), 500);
                         
-                        // Lazy load the remaining frames in the background
-                        for (let j = initialLoadCount + 1; j <= frameCount; j++) {
-                            loadFrame(j, false);
-                        }
+                        // Start sequential loading for the rest
+                        loadSequential(initialLoadCount + 1);
                     }, 500);
                 }
             };
         }
 
-        // Prioritize loading only the first 20 frames to unblock the UI instantly
+        function loadSequential(index) {
+            if (index > frameCount) return;
+            const img = new Image();
+            img.src = currentFrame(index);
+            images[index - 1] = img;
+            img.onload = () => {
+                loadSequential(index + 1);
+            };
+        }
+
+        // Prioritize loading only the first 100 frames to unblock the UI instantly
         for (let i = 1; i <= initialLoadCount; i++) {
             loadFrame(i, true);
         }
